@@ -1,5 +1,5 @@
 // ─── CONFIG ───────────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://nous-0u15.onrender.com';
 
 // ─── STARS ────────────────────────────────────────────────────────────────
 (function () {
