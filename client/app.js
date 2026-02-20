@@ -1,5 +1,5 @@
 // ─── CONFIG ───────────────────────────────────────────────────────────────
-const API_BASE = 'https://nous-0u15.onrender.com';
+const API_BASE = 'https://nous-0u15.onrender.com/api';
 
 // ─── STARS ────────────────────────────────────────────────────────────────
 (function () {
