@@ -6,10 +6,43 @@
 <title>Nous — Dream Interpreter</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<style>
+/* ─── SELECTOR LIMBA ─────────────────────────────────────────── */
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.lang-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-btn:hover { color: var(--text); border-color: var(--border-hover); }
+.lang-btn.active { color: var(--gold); border-color: var(--gold-dim); background: rgba(201,169,110,0.05); }
 
+/* Selector limba pe ecranul de autentificare */
+.auth-lang {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+</style>
 </head>
 <body>
 
+<!-- COSMOS -->
 <div class="cosmos">
   <div id="starField"></div>
   <div class="nebula" style="width:500px;height:500px;top:-120px;left:-80px;background:radial-gradient(circle,rgba(70,30,140,0.18),transparent 70%);--dur:22s;--dx:25px;--dy:-15px"></div>
@@ -19,8 +52,20 @@
 
 <div id="app">
 
-  <!-- AUTH -->
+  <!-- ─── ECRAN AUTENTIFICARE ─── -->
   <div id="authScreen" style="display:none">
+
+    <!-- Selector limba (afiseat inainte de login) -->
+    <div class="auth-lang">
+      <button class="lang-btn active" data-lang="en"  onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        data-lang="de"  onclick="setLang('de')">DE</button>
+      <button class="lang-btn"        data-lang="fr"  onclick="setLang('fr')">FR</button>
+      <button class="lang-btn"        data-lang="it"  onclick="setLang('it')">IT</button>
+      <button class="lang-btn"        data-lang="ro"  onclick="setLang('ro')">RO</button>
+      <button class="lang-btn"        data-lang="zh"  onclick="setLang('zh')">中文</button>
+      <button class="lang-btn"        data-lang="ja"  onclick="setLang('ja')">日本語</button>
+    </div>
+
     <div class="auth-logo">
       <svg class="eye-svg" width="52" height="52" viewBox="0 0 56 56" fill="none">
         <ellipse cx="28" cy="28" rx="24" ry="14" stroke="#c9a96e" stroke-width="1.2" fill="none" opacity="0.7"/>
@@ -30,46 +75,52 @@
         <line x1="28" y1="45" x2="28" y2="52" stroke="#c9a96e" stroke-width="0.8" opacity="0.35"/>
       </svg>
       <h1>NOUS</h1>
-      <p>The oracle of inner visions</p>
+      <p id="authTagline">The oracle of inner visions</p>
     </div>
+
     <div class="auth-card">
       <div class="auth-tabs">
-        <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Enter</button>
-        <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Begin</button>
+        <button class="auth-tab active" id="tabLogin"  onclick="switchTab('login')">Enter</button>
+        <button class="auth-tab"        id="tabSignup" onclick="switchTab('signup')">Begin</button>
       </div>
+
+      <!-- Formular login -->
       <div id="loginForm">
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" id="labelLoginEmail">Email</label>
           <input class="form-input" type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label" id="labelLoginPassword">Password</label>
           <input class="form-input" type="password" id="loginPassword" placeholder="········" autocomplete="current-password">
         </div>
-        <button class="btn-primary" onclick="login()">✦ Enter the Oracle</button>
+        <button class="btn-primary" id="btnLogin" onclick="login()">✦ Enter the Oracle</button>
         <div class="auth-message" id="loginMsg"></div>
       </div>
+
+      <!-- Formular signup -->
       <div id="signupForm" style="display:none">
         <div class="form-group">
-          <label class="form-label">Your Name</label>
+          <label class="form-label" id="labelSignupName">Your Name</label>
           <input class="form-input" type="text" id="signupName" placeholder="How should Nous address you?">
         </div>
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" id="labelSignupEmail">Email</label>
           <input class="form-input" type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email">
         </div>
         <div class="form-group">
-          <label class="form-label">Password</label>
+          <label class="form-label" id="labelSignupPassword">Password</label>
           <input class="form-input" type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" autocomplete="new-password">
         </div>
-        <button class="btn-primary" onclick="signup()">✦ Awaken the Oracle</button>
+        <button class="btn-primary" id="btnSignup" onclick="signup()">✦ Awaken the Oracle</button>
         <div class="auth-message" id="signupMsg"></div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN APP -->
+  <!-- ─── APLICATIE PRINCIPALA ─── -->
   <div id="mainApp" style="display:none">
+
     <div class="topbar">
       <div class="topbar-logo">
         <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
@@ -79,80 +130,105 @@
         </svg>
         NOUS
       </div>
+
       <div class="topbar-nav">
         <button class="nav-btn active" id="navInterpret" onclick="showView('interpret')">Interpret</button>
-        <button class="nav-btn" id="navCalendar" onclick="showView('calendar')">Calendar</button>
-        <button class="nav-btn" id="navJournal" onclick="showView('journal')">Journal</button>
+        <button class="nav-btn"        id="navCalendar"  onclick="showView('calendar')">Calendar</button>
+        <button class="nav-btn"        id="navJournal"   onclick="showView('journal')">Journal</button>
       </div>
+
       <div class="topbar-user">
+        <!-- Selector limba in topbar -->
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="en"  onclick="setLang('en')">EN</button>
+          <button class="lang-btn"        data-lang="de"  onclick="setLang('de')">DE</button>
+          <button class="lang-btn"        data-lang="fr"  onclick="setLang('fr')">FR</button>
+          <button class="lang-btn"        data-lang="it"  onclick="setLang('it')">IT</button>
+          <button class="lang-btn"        data-lang="ro"  onclick="setLang('ro')">RO</button>
+          <button class="lang-btn"        data-lang="zh"  onclick="setLang('zh')">中文</button>
+          <button class="lang-btn"        data-lang="ja"  onclick="setLang('ja')">日本語</button>
+        </div>
         <span class="user-name" id="userGreeting"></span>
-        <button class="btn-logout" onclick="logout()">Leave</button>
+        <button class="btn-logout" id="btnLogout" onclick="logout()">Leave</button>
       </div>
     </div>
 
-    <!-- INTERPRET -->
+    <!-- ─── VIZUALIZARE INTERPRETEAZA ─── -->
     <div class="view active" id="viewInterpret">
       <div class="page-header">
-        <h2>Interpret a Dream</h2>
-        <p>Speak freely of what visited you in the night</p>
+        <h2 id="interpretTitle">Interpret a Dream</h2>
+        <p  id="interpretSubtitle">Speak freely of what visited you in the night</p>
       </div>
+
       <div class="card">
-        <label class="field-label" for="dreamInput">Your Dream</label>
+        <label class="field-label" id="labelDream" for="dreamInput">Your Dream</label>
         <textarea class="dream-input" id="dreamInput" rows="6"
           placeholder="Describe the dream — its figures, landscapes, feelings, colours, the strange logic of its world…"></textarea>
+
         <div class="lens-section">
-          <span class="field-label">Interpretation Lens</span>
+          <span class="field-label" id="labelLens">Interpretation Lens</span>
           <div class="lens-grid">
             <button class="lens-btn active" data-lens="jungian" onclick="selectLens(this)">
               <span class="lens-icon">☽</span>
-              <span class="lens-name">Jungian</span>
-              <span class="lens-desc">Shadow &amp; archetype</span>
+              <span class="lens-name" id="lensNameJungian">Jungian</span>
+              <span class="lens-desc" id="lensDescJungian">Shadow &amp; archetype</span>
             </button>
             <button class="lens-btn" data-lens="freudian" onclick="selectLens(this)">
               <span class="lens-icon">🝐</span>
-              <span class="lens-name">Freudian</span>
-              <span class="lens-desc">Desire &amp; repression</span>
+              <span class="lens-name" id="lensNameFreudian">Freudian</span>
+              <span class="lens-desc" id="lensDescFreudian">Desire &amp; repression</span>
             </button>
             <button class="lens-btn" data-lens="spiritual" onclick="selectLens(this)">
               <span class="lens-icon">✦</span>
-              <span class="lens-name">Spiritual</span>
-              <span class="lens-desc">Soul &amp; mythos</span>
+              <span class="lens-name" id="lensNameSpiritual">Spiritual</span>
+              <span class="lens-desc" id="lensDescSpiritual">Soul &amp; mythos</span>
             </button>
             <button class="lens-btn" data-lens="practical" onclick="selectLens(this)">
               <span class="lens-icon">◈</span>
-              <span class="lens-name">Practical</span>
-              <span class="lens-desc">Mind &amp; waking life</span>
+              <span class="lens-name" id="lensNamePractical">Practical</span>
+              <span class="lens-desc" id="lensDescPractical">Mind &amp; waking life</span>
             </button>
           </div>
         </div>
+
         <div class="action-row">
-          <button class="btn-interpret" id="interpretBtn" onclick="interpretDream()">✦ Interpret</button>
-          <button class="btn-secondary" onclick="clearAll()">Clear</button>
+          <button class="btn-interpret" id="interpretBtn" onclick="interpretDream()">
+            <span id="btnInterpret">✦ Interpret</span>
+          </button>
+          <button class="btn-secondary" onclick="clearAll()">
+            <span id="btnClear">Clear</span>
+          </button>
         </div>
+
         <div class="error-banner" id="errorBanner"></div>
+
         <div class="loading-bar" id="loadingBar">
           <div class="orb"></div>
           <p class="loading-msg" id="loadingMsg">Nous is gazing into the symbolic realm…</p>
         </div>
       </div>
+
+      <!-- Card rezultat -->
       <div class="card result-card" id="resultCard">
         <div class="result-header">
-          <div class="result-label">✦ Interpretation</div>
+          <div class="result-label">
+            <span id="resultLabelText">✦ Interpretation</span>
+          </div>
           <div class="lens-badge" id="resultLensBadge"></div>
         </div>
         <div class="interpretation-text" id="interpretationText"></div>
         <div class="symbols-row">
-          <div class="symbols-label">Symbols Identified</div>
-          <div class="symbols-grid" id="symbolsGrid"></div>
+          <div class="symbols-label" id="symbolsLabelText">Symbols Identified</div>
+          <div class="symbols-grid"  id="symbolsGrid"></div>
         </div>
       </div>
     </div>
 
-    <!-- CALENDAR -->
+    <!-- ─── VIZUALIZARE CALENDAR ─── -->
     <div class="view" id="viewCalendar">
       <div class="page-header">
-        <h2>Dream Calendar</h2>
-        <p>Navigate the nights you have recorded</p>
+        <h2 id="calendarTitle">Dream Calendar</h2>
+        <p  id="calendarSubtitle">Navigate the nights you have recorded</p>
       </div>
       <div class="calendar-layout">
         <div>
@@ -165,32 +241,35 @@
             <div class="cal-grid" id="calGrid"></div>
           </div>
         </div>
+
         <div class="dream-detail card" id="dreamDetailPanel">
           <div class="dream-detail-empty" id="detailEmpty">
             <div class="detail-icon">☽</div>
-            <p>Select a highlighted date<br>to read its dream</p>
+            <p id="detailEmptyText">Select a highlighted date to read its dream</p>
           </div>
           <div id="detailContent" style="display:none">
-            <div class="detail-date" id="detailDate"></div>
-            <div class="detail-dream-text" id="detailDreamText"></div>
-            <div class="detail-lens-tag" id="detailLensTag"></div>
-            <div class="detail-interp" id="detailInterp"></div>
-            <div class="detail-symbols" id="detailSymbols"></div>
+            <div class="detail-date"        id="detailDate"></div>
+            <div class="detail-dream-text"  id="detailDreamText"></div>
+            <div class="detail-lens-tag"    id="detailLensTag"></div>
+            <div class="detail-interp"      id="detailInterp"></div>
+            <div class="detail-symbols"     id="detailSymbols"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- JOURNAL -->
+    <!-- ─── VIZUALIZARE JURNAL ─── -->
     <div class="view" id="viewJournal">
       <div class="page-header">
-        <h2>Dream Journal</h2>
-        <p>Your archive of interpreted visions</p>
+        <h2 id="journalTitle">Dream Journal</h2>
+        <p  id="journalSubtitle">Your archive of interpreted visions</p>
       </div>
       <div id="journalList"></div>
     </div>
-  </div>
-</div>
+
+  </div><!-- #mainApp -->
+</div><!-- #app -->
+
 <script src="app.js"></script>
 </body>
 </html>
