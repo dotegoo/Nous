@@ -1,7 +1,17 @@
 const express  = require('express');
+const rateLimit = require('express-rate-limit');
 const Anthropic = require('@anthropic-ai/sdk');
 const Dream     = require('../models/Dream');
 const { protect } = require('../middleware/auth');
+
+// limiter specific pentru endpoint-ul de interpretare (protejăm API-ul extern)
+const interpretLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Hourly interpretation limit reached. The oracle must rest.' }
+});
 
 const router = express.Router();
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -107,7 +117,7 @@ router.get('/:id', async (req, res, next) => {
 
 // ─── POST /api/dreams/interpret ───────────────────────────────────────────
 // Trimite un vis la Anthropic, obtine interpretarea, salveaza si returneaza rezultatul
-router.post('/interpret', async (req, res, next) => {
+router.post('/interpret', interpretLimiter, async (req, res, next) => {
   try {
     const { dream, lens = 'jungian' } = req.body;
 
