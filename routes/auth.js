@@ -5,30 +5,30 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─── HELPER: sign a JWT for a user ────────────────────────────────────────
+// ─── HELPER: semneaza un JWT pentru un utilizator ─────────────────────────
 const signToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 
 // ─── POST /api/auth/signup ────────────────────────────────────────────────
-// Create a new account
+// Creeaza un cont nou
 router.post('/signup', async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    // Basic presence check (mongoose validators handle the rest)
+    // Verificare simpla de prezenta (validatorii mongoose se ocupa de restul)
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are all required.' });
     }
 
-    // Check for duplicate email before attempting to save
+    // Verifica email duplicat inainte de a incerca salvarea
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
     if (existing) {
       return res.status(409).json({ error: 'An account with this email already exists.' });
     }
 
-    // Create user — password is hashed automatically via the pre-save hook in User.js
+    // Creeaza utilizator — parola este criptata automat prin hook-ul pre-save din User.js
     const user = await User.create({ name, email, password });
 
     const token = signToken(user._id);
@@ -40,7 +40,7 @@ router.post('/signup', async (req, res, next) => {
     });
 
   } catch (err) {
-    // Mongoose validation errors
+    // Erori de validare mongoose
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map((e) => e.message);
       return res.status(400).json({ error: messages.join(' ') });
@@ -50,7 +50,7 @@ router.post('/signup', async (req, res, next) => {
 });
 
 // ─── POST /api/auth/login ─────────────────────────────────────────────────
-// Log in with email + password
+// Autentificare cu email si parola
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -59,11 +59,11 @@ router.post('/login', async (req, res, next) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    // Fetch user including password (select:false by default)
+    // Preia utilizator incluzand parola (select:false implicit)
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
-      // Deliberately vague message to prevent user enumeration
+      // Mesaj deliberat vag pentru a preveni enumerarea utilizatorilor
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
@@ -81,13 +81,13 @@ router.post('/login', async (req, res, next) => {
 });
 
 // ─── GET /api/auth/me ─────────────────────────────────────────────────────
-// Returns the currently authenticated user (used to restore session on page load)
+// Returneaza utilizatorul autentificat curent (folosit pentru a restabili sesiunea la incarcare)
 router.get('/me', protect, async (req, res) => {
   res.json({ user: req.user.toPublicJSON() });
 });
 
 // ─── PATCH /api/auth/me ───────────────────────────────────────────────────
-// Update name or timezone
+// Actualizeaza numele sau fusul orar
 router.patch('/me', protect, async (req, res, next) => {
   try {
     const allowed = ['name', 'timezone'];
@@ -117,7 +117,7 @@ router.patch('/me', protect, async (req, res, next) => {
 });
 
 // ─── PATCH /api/auth/password ─────────────────────────────────────────────
-// Change password (requires current password confirmation)
+// Schimba parola (necesita confirmarea parolei curente)
 router.patch('/password', protect, async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -146,7 +146,7 @@ router.patch('/password', protect, async (req, res, next) => {
 });
 
 // ─── DELETE /api/auth/me ──────────────────────────────────────────────────
-// Delete account and all associated dreams
+// Sterge contul si toate visele asociate
 router.delete('/me', protect, async (req, res, next) => {
   try {
     const Dream = require('../models/Dream');

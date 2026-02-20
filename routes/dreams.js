@@ -6,10 +6,10 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// All dream routes require authentication
+// Toate rutele de vise necesita autentificare
 router.use(protect);
 
-// ─── LENS SYSTEM PROMPTS ──────────────────────────────────────────────────
+// ─── PROMPTURI DE SISTEM PENTRU LENTILE ──────────────────────────────────
 const LENS_PROMPTS = {
   jungian: `You are Nous, a Jungian dream analyst. Interpret through the lens of Carl Jung — archetypes (Shadow, Anima/Animus, Self, Persona, Hero), the collective unconscious, individuation, and symbolic amplification. Speak with poetic depth and wisdom.`,
 
@@ -23,14 +23,14 @@ const LENS_PROMPTS = {
 const LENS_KEYS = Object.keys(LENS_PROMPTS);
 
 // ─── GET /api/dreams ──────────────────────────────────────────────────────
-// Fetch all dreams for the logged-in user (paginated)
+// Preia toate visele pentru utilizatorul logat (paginate)
 router.get('/', async (req, res, next) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page)  || 1);
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const skip  = (page - 1) * limit;
 
-    // Optional lens filter
+    // Filtru optional pe lentila
     const filter = { user: req.user._id };
     if (req.query.lens && LENS_KEYS.includes(req.query.lens)) {
       filter.lens = req.query.lens;
@@ -60,15 +60,15 @@ router.get('/', async (req, res, next) => {
 });
 
 // ─── GET /api/dreams/calendar ─────────────────────────────────────────────
-// Returns dreams grouped by date — used to populate the calendar view
-// Query params: year, month (e.g. ?year=2025&month=11)
+// Returneaza vise grupate pe data — folosit pentru a popula vederea calendarului
+// Parametri query: year, month (de ex. ?year=2025&month=11)
 router.get('/calendar', async (req, res, next) => {
   try {
     const year  = parseInt(req.query.year)  || new Date().getFullYear();
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
 
-    const start = new Date(year, month - 1, 1);           // 1st of the month
-    const end   = new Date(year, month, 0, 23, 59, 59);   // last day of the month
+    const start = new Date(year, month - 1, 1);           // 1 ale lunii
+    const end   = new Date(year, month, 0, 23, 59, 59);   // ultima zi a lunii
 
     const dreams = await Dream.find({
       user:      req.user._id,
@@ -77,7 +77,7 @@ router.get('/calendar', async (req, res, next) => {
       .sort({ createdAt: 1 })
       .select('createdAt lens symbols dream interpretation');
 
-    // Group by YYYY-MM-DD date string
+    // Grupeaza dupa sir data YYYY-MM-DD
     const byDate = {};
     dreams.forEach((d) => {
       const key = d.createdAt.toISOString().slice(0, 10);
@@ -93,7 +93,7 @@ router.get('/calendar', async (req, res, next) => {
 });
 
 // ─── GET /api/dreams/:id ──────────────────────────────────────────────────
-// Fetch a single dream by ID
+// Preia un singur vis dupa ID
 router.get('/:id', async (req, res, next) => {
   try {
     const dream = await Dream.findOne({ _id: req.params.id, user: req.user._id });
@@ -106,7 +106,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // ─── POST /api/dreams/interpret ───────────────────────────────────────────
-// Send a dream to Anthropic, get interpretation, save and return the result
+// Trimite un vis la Anthropic, obtine interpretarea, salveaza si returneaza rezultatul
 router.post('/interpret', async (req, res, next) => {
   try {
     const { dream, lens = 'jungian' } = req.body;
@@ -121,7 +121,7 @@ router.post('/interpret', async (req, res, next) => {
       return res.status(400).json({ error: `Lens must be one of: ${LENS_KEYS.join(', ')}.` });
     }
 
-    // Call Anthropic
+    // Apeleaza Anthropic
     const message = await anthropic.messages.create({
       model:      'claude-sonnet-4-20250514',
       max_tokens: 1024,
@@ -131,7 +131,7 @@ router.post('/interpret', async (req, res, next) => {
       messages: [{ role: 'user', content: `Interpret this dream: ${dream.trim()}` }],
     });
 
-    // Parse AI response
+    // Parseaza raspunsul AI
     const raw  = message.content?.[0]?.text || '';
     let parsed;
     try {
@@ -144,7 +144,7 @@ router.post('/interpret', async (req, res, next) => {
       return res.status(502).json({ error: 'Unexpected response format from the oracle.' });
     }
 
-    // Save to database
+    // Salveaza in baza de date
     const saved = await Dream.create({
       user:           req.user._id,
       dream:          dream.trim(),
@@ -167,7 +167,7 @@ router.post('/interpret', async (req, res, next) => {
 });
 
 // ─── PATCH /api/dreams/:id/notes ─────────────────────────────────────────
-// Add or update personal notes on a saved dream
+// Adauga sau actualizeaza note personale pe un vis salvat
 router.patch('/:id/notes', async (req, res, next) => {
   try {
     const { notes } = req.body;
@@ -191,7 +191,7 @@ router.patch('/:id/notes', async (req, res, next) => {
 });
 
 // ─── DELETE /api/dreams/:id ───────────────────────────────────────────────
-// Soft-delete a dream (sets deleted: true, keeps it in DB)
+// Stergere usoara a unui vis (seteaza deleted: true, il pastreaza in BD)
 router.delete('/:id', async (req, res, next) => {
   try {
     const dream = await Dream.findOneAndUpdate(

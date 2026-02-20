@@ -11,7 +11,7 @@ const dreamRoutes = require('./routes/dreams');
 
 const app = express();
 
-// ─── SECURITY MIDDLEWARE ───────────────────────────────────────────────────
+// ─── MIDDLEWARE DE SECURITATE ─────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -29,19 +29,19 @@ app.use(helmet({
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    // Permite cereri fara origine (app-uri mobile, curl, etc.)
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 }));
 
-// ─── BODY PARSING ─────────────────────────────────────────────────────────
+// ─── PARSARE BODY ─────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// ─── RATE LIMITING ────────────────────────────────────────────────────────
-// General limiter for all API routes
+// ─── LIMITARE RATA ───────────────────────────────────────────────────────
+// Limitator general pentru toate rutele API
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
@@ -50,7 +50,7 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests. Please wait a moment before trying again.' }
 });
 
-// Stricter limiter for auth endpoints
+// Limitator mai strict pentru endpoint-urile de autentificare
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -59,7 +59,7 @@ const authLimiter = rateLimit({
   message: { error: 'Too many authentication attempts. Please wait before trying again.' }
 });
 
-// Limiter for dream interpretation (calls Anthropic API — protect it)
+// Limitator pentru interpretarea viselor (apeleaza API-ul Anthropic — protejeaza-l)
 const interpretLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 30,
@@ -72,7 +72,7 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth/', authLimiter);
 app.use('/api/dreams/interpret', interpretLimiter);
 
-// ─── DATABASE ─────────────────────────────────────────────────────────────
+// ─── BAZA DE DATE ─────────────────────────────────────────────────────────
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
@@ -85,11 +85,11 @@ const connectDB = async () => {
   }
 };
 
-// ─── ROUTES ───────────────────────────────────────────────────────────────
+// ─── RUTE ─────────────────────────────────────────────────────────────────
 app.use('/api/auth',   authRoutes);
 app.use('/api/dreams', dreamRoutes);
 
-// Health check endpoint
+// Endpoint de verificare stare
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -99,10 +99,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ─── SERVE FRONTEND (production) ──────────────────────────────────────────
+// ─── SERVE FRONTEND (productie) ──────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client')));
-  // Any non-API route serves the frontend
+  // Orice ruta non-API serveste frontend-ul
   app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.join(__dirname, 'client', 'index.html'));
@@ -110,14 +110,14 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// ─── 404 HANDLER ──────────────────────────────────────────────────────────
+// ─── HANDLER 404 ─────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found.' });
 });
 
-// ─── GLOBAL ERROR HANDLER ─────────────────────────────────────────────────
+// ─── HANDLER GLOBAL ERORI ─────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  // CORS error
+  // Eroare CORS
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'CORS policy violation.' });
   }
@@ -132,7 +132,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({ error: message });
 });
 
-// ─── GRACEFUL SHUTDOWN ────────────────────────────────────────────────────
+// ─── OPRIRE GRADUALA ─────────────────────────────────────────────────────
 const shutdown = async (signal) => {
   console.log(`\n✦ Received ${signal}. Closing server gracefully…`);
   await mongoose.connection.close();

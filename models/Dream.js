@@ -6,10 +6,10 @@ const DreamSchema = new mongoose.Schema(
       type:     mongoose.Schema.Types.ObjectId,
       ref:      'User',
       required: true,
-      index:    true, // fast lookup by user
+      index:    true, // cautare rapida dupa utilizator
     },
 
-    // The raw dream text entered by the user
+    // Textul brut al visului introdus de utilizator
     dream: {
       type:      String,
       required:  [true, 'Dream content is required.'],
@@ -18,7 +18,7 @@ const DreamSchema = new mongoose.Schema(
       maxlength: [5000, 'Dream description is too long (max 5000 characters).'],
     },
 
-    // Which interpretive lens was used
+    // Ce lentila interpretativa a fost folosita
     lens: {
       type:     String,
       required: true,
@@ -28,14 +28,14 @@ const DreamSchema = new mongoose.Schema(
       },
     },
 
-    // The full interpretation text returned by the AI
+    // Textul complet al interpretarii returnat de AI
     interpretation: {
       type:     String,
       required: true,
       trim:     true,
     },
 
-    // Array of short symbol strings identified in the dream
+    // Array de siruri scurte cu simboluri identificate in vis
     symbols: {
       type:    [String],
       default: [],
@@ -45,7 +45,7 @@ const DreamSchema = new mongoose.Schema(
       },
     },
 
-    // Optional user-added notes or reflections after reading the interpretation
+    // Note optionale adaugate de utilizator sau reflectii dupa citirea interpretarii
     notes: {
       type:      String,
       trim:      true,
@@ -53,7 +53,7 @@ const DreamSchema = new mongoose.Schema(
       default:   '',
     },
 
-    // Soft-delete flag — lets users "delete" without losing data permanently
+    // Steag stergere usoara — permite utilizatorilor sa "stearga" fara a pierde date permanente
     deleted: {
       type:    Boolean,
       default: false,
@@ -61,15 +61,15 @@ const DreamSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // createdAt = the night of the dream record
+    timestamps: true, // createdAt = noaptea in care a fost inregistrat visul
   }
 );
 
-// ─── COMPOUND INDEX ───────────────────────────────────────────────────────
-// Efficient queries like "all dreams for user X sorted by date"
+// ─── INDEX COMPOZIT ───────────────────────────────────────────────────────
+// Interogari eficiente gen "toate visele pentru utilizatorul X sortate dupa data"
 DreamSchema.index({ user: 1, createdAt: -1 });
 
-// ─── QUERY HELPER: exclude soft-deleted by default ────────────────────────
+// ─── HELPER PENTRU QUERY: exclude stergerile usoare implicit ─────────────
 DreamSchema.pre(/^find/, function (next) {
   if (!this.getOptions().includeDeleted) {
     this.where({ deleted: false });
@@ -77,7 +77,7 @@ DreamSchema.pre(/^find/, function (next) {
   next();
 });
 
-// ─── VIRTUAL: formatted date string ───────────────────────────────────────
+// ─── VIRTUAL: sirul de data formatat ───────────────────────────────────────
 DreamSchema.virtual('dateStr').get(function () {
   return this.createdAt.toLocaleDateString('en-US', {
     month: 'long',

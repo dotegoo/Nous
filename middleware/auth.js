@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
-    // 1. Pull token from Authorization header
+    // 1. Preia tokenul din antetul Authorization
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Not authenticated. Please log in.' });
@@ -11,7 +11,7 @@ const protect = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    // 2. Verify the token
+    // 2. Verifica tokenul
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -22,13 +22,13 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid token. Please log in again.' });
     }
 
-    // 3. Check the user still exists in the DB
+    // 3. Verifica daca utilizatorul inca exista in BD
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({ error: 'The account belonging to this token no longer exists.' });
     }
 
-    // 4. Attach user to request for downstream route handlers
+    // 4. Ataseaza utilizatorul la request pentru handler-ele urmatoare
     req.user = user;
     next();
 

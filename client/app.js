@@ -1,7 +1,7 @@
-// ─── CONFIG ───────────────────────────────────────────────────────────────
+// ─── CONFIGURATIE ──────────────────────────────────────────────────────────
 const API_BASE = 'https://nous-0u15.onrender.com/api';
 
-// ─── STARS ────────────────────────────────────────────────────────────────
+// ─── STELE ─────────────────────────────────────────────────────────────────
 (function () {
   const el = document.getElementById('starField');
   for (let i = 0; i < 130; i++) {
@@ -29,7 +29,7 @@ function setUser(u)       { localStorage.setItem('nous_user', JSON.stringify(u))
 function removeUser()     { localStorage.removeItem('nous_user'); }
 
 // ─── API HELPER ───────────────────────────────────────────────────────────
-// Central fetch wrapper — attaches auth header, parses JSON, throws on errors
+// Wrapper central pentru fetch — atașează antetul de autentificare, parsează JSON și aruncă erori
 async function api(method, path, body = null) {
   const headers = { 'Content-Type': 'application/json' };
   const token = getToken();
@@ -42,20 +42,20 @@ async function api(method, path, body = null) {
   const data = await res.json();
 
   if (!res.ok) {
-    // Throw the server's error message so callers can display it
+    // Aruncă mesajul de eroare al serverului pentru ca apelanții să îl poată afișa
     throw new Error(data.error || 'Something went wrong.');
   }
 
   return data;
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────
+// ─── AUTENTIFICARE ─────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.getElementById('loginForm').style.display  = tab === 'login'  ? '' : 'none';
   document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
   document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
   document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
-  // Clear messages when switching
+  // Sterge mesajele la schimbare
   ['loginMsg', 'signupMsg'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '';
@@ -120,7 +120,7 @@ function logout() {
   removeUser();
   document.getElementById('mainApp').style.display    = 'none';
   document.getElementById('authScreen').style.display = 'flex';
-  // Clear form fields
+  // Sterge campurile formularului
   ['loginEmail','loginPassword','signupName','signupEmail','signupPassword']
     .forEach(id => { document.getElementById(id).value = ''; });
 }
@@ -133,20 +133,20 @@ function enterApp(user) {
   calendarMonth = new Date();
 }
 
-// ─── BOOT: restore session on page load ───────────────────────────────────
+// ─── BOOT: restabileste sesiunea la incarcarea paginii ─────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   const token = getToken();
   const user  = getUser();
 
   if (token && user) {
-    // Verify the token is still valid against the server
+    // Verifica daca tokenul este inca valabil la server
     try {
       const data = await api('GET', '/auth/me');
       setUser(data.user); // refresh stored user data
       enterApp(data.user);
       return;
     } catch {
-      // Token expired or invalid — clear and show auth screen
+      // Tokenul a expirat sau este invalid — sterge si afiseaza ecranul de autentificare
       removeToken();
       removeUser();
     }
@@ -155,7 +155,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('authScreen').style.display = 'flex';
 });
 
-// ─── VIEWS ────────────────────────────────────────────────────────────────
+// ─── VIZUALIZARI ───────────────────────────────────────────────────────────
 const VIEWS = ['interpret', 'calendar', 'journal'];
 
 function showView(name) {
@@ -172,7 +172,7 @@ function showView(name) {
   if (name === 'journal')  renderJournal();
 }
 
-// ─── LENS ─────────────────────────────────────────────────────────────────
+// ─── LENTILA ───────────────────────────────────────────────────────────────
 let activeLens = 'jungian';
 const LENS_LABELS = {
   jungian:   'Jungian',
@@ -187,7 +187,7 @@ function selectLens(btn) {
   activeLens = btn.dataset.lens;
 }
 
-// ─── INTERPRET ────────────────────────────────────────────────────────────
+// ─── INTERPRETEAZA ─────────────────────────────────────────────────────────
 const LOADING_MSGS = [
   'Nous is gazing into the symbolic realm…',
   'Tracing the threads of your unconscious mind…',
@@ -220,7 +220,7 @@ async function interpretDream() {
   }, 2800);
 
   try {
-    // POST to our backend — Anthropic call happens server-side
+    // POST catre backend-ul nostru — apelul catre Anthropic are loc pe server
     const data = await api('POST', '/dreams/interpret', {
       dream,
       lens: activeLens,
@@ -231,7 +231,7 @@ async function interpretDream() {
 
     const entry = data.dream;
 
-    // Render interpretation
+    // Reda interpretarea
     document.getElementById('interpretationText').textContent = entry.interpretation;
     document.getElementById('resultLensBadge').textContent    = LENS_LABELS[activeLens] + ' lens';
 
@@ -262,7 +262,7 @@ function clearAll() {
   document.getElementById('errorBanner').classList.remove('active');
 }
 
-// ─── CALENDAR ─────────────────────────────────────────────────────────────
+// ─── CALENDAR ──────────────────────────────────────────────────────────────
 let calendarMonth = new Date();
 
 function changeMonth(dir) {
@@ -283,7 +283,7 @@ async function renderCalendar() {
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
 
-  // Day-of-week headers
+  // Antete pentru zilele saptamanii
   ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
     const el = document.createElement('div');
     el.className   = 'cal-dow';
@@ -291,7 +291,7 @@ async function renderCalendar() {
     grid.appendChild(el);
   });
 
-  // Fetch dreams for this month from the backend
+  // Preia visele din aceasta luna de la backend
   let dreamMap = {};
   try {
     const data = await api('GET', `/dreams/calendar?year=${year}&month=${month}`);
@@ -304,7 +304,7 @@ async function renderCalendar() {
   const daysInMonth = new Date(year, month, 0).getDate();
   const daysInPrev  = new Date(year, month - 1, 0).getDate();
 
-  // Previous month trailing days
+  // Zile ramase din luna anterioara
   for (let i = 0; i < firstDay; i++) {
     const el = document.createElement('div');
     el.className   = 'cal-day other-month';
@@ -312,7 +312,7 @@ async function renderCalendar() {
     grid.appendChild(el);
   }
 
-  // Current month days
+  // Zile din luna curenta
   for (let d = 1; d <= daysInMonth; d++) {
     const el      = document.createElement('div');
     el.className  = 'cal-day';
@@ -336,7 +336,7 @@ async function renderCalendar() {
     grid.appendChild(el);
   }
 
-  // Next month leading days
+  // Zile de inceput ale lunii urmatoare
   const remaining = 42 - firstDay - daysInMonth;
   for (let i = 1; i <= remaining; i++) {
     const el = document.createElement('div');
@@ -372,7 +372,7 @@ function showDreamDetail(entry, dayEl) {
   });
 }
 
-// ─── JOURNAL ──────────────────────────────────────────────────────────────
+// ─── JURNAL ──────────────────────────────────────────────────────────────
 async function renderJournal() {
   const container = document.getElementById('journalList');
   container.innerHTML = '<div class="empty-state"><div class="empty-icon">☽</div><p>Loading your dreams…</p></div>';
@@ -447,7 +447,7 @@ function loadEntry(entry) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────────
+// ─── SCURTATURI DE LA TASTATURA ─────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     if (document.activeElement.id === 'loginPassword')  login();

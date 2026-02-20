@@ -24,10 +24,10 @@ const UserSchema = new mongoose.Schema(
       type:      String,
       required:  [true, 'Password is required.'],
       minlength: [6, 'Password must be at least 6 characters.'],
-      select:    false, // never returned in queries by default
+      select:    false, // niciodata returnata in interogari implicit
     },
 
-    // Optional profile fields — can be expanded later
+    // Campuri de profil optionale — pot fi extinse mai tarziu
     timezone: {
       type:    String,
       default: 'UTC',
@@ -39,13 +39,13 @@ const UserSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // adds createdAt + updatedAt automatically
+    timestamps: true, // adauga createdAt + updatedAt automat
   }
 );
 
-// ─── HASH PASSWORD BEFORE SAVING ──────────────────────────────────────────
+// ─── HASH LA PAROLA INAINTE DE SALVARE ───────────────────────────────────
 UserSchema.pre('save', async function (next) {
-  // Only hash if the password field was modified
+  // Cripteaza doar daca campul parola a fost modificat
   if (!this.isModified('password')) return next();
 
   const salt   = await bcrypt.genSalt(12);
@@ -53,13 +53,13 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-// ─── INSTANCE METHOD: compare passwords ───────────────────────────────────
+// ─── METODA INSTANTA: compara parolele ───────────────────────────────────
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ─── INSTANCE METHOD: safe public profile ─────────────────────────────────
-// Returns user data without sensitive fields
+// ─── METODA INSTANTA: profil public sigur ─────────────────────────────────
+// Returneaza datele utilizatorului fara campuri sensibile
 UserSchema.methods.toPublicJSON = function () {
   return {
     id:        this._id,

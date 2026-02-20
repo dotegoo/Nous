@@ -58,10 +58,10 @@ body {
   50%      { opacity: var(--max-op,.8); transform: scale(1.3); }
 }
 
-/* APP SHELL */
+/* SHELL APP */
 #app { position: relative; z-index: 1; min-height: 100vh; }
 
-/* AUTH */
+/* AUTENTIFICARE */
 #authScreen {
   min-height: 100vh; display: flex;
   flex-direction: column; align-items: center; justify-content: center;
@@ -142,10 +142,10 @@ body {
 .auth-message.error { background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25); color: rgba(240,180,180,0.9); display: block; }
 .auth-message.success { background: rgba(80,180,140,0.1); border: 1px solid rgba(80,180,140,0.25); color: rgba(160,230,200,0.9); display: block; }
 
-/* MAIN APP */
+/* APLICATIE PRINCIPALA */
 #mainApp { display: none; }
 
-/* TOPBAR */
+/* BARA SUS */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 1.1rem 2rem; border-bottom: 1px solid var(--border);
@@ -178,11 +178,11 @@ body {
 }
 .btn-logout:hover { color: rgba(240,180,180,0.8); border-color: rgba(200,80,80,0.3); }
 
-/* VIEWS */
+/* VIZUALIZARI */
 .view { display: none; padding: 2.5rem 1.5rem; max-width: 780px; margin: 0 auto; }
 .view.active { display: block; }
 
-/* PAGE HEADER */
+/* ANTET PAGINA */
 .page-header { text-align: center; margin-bottom: 2.5rem; }
 .page-header h2 {
   font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 400;
@@ -190,7 +190,7 @@ body {
 }
 .page-header p { font-style: italic; color: var(--text-dim); font-size: 1rem; }
 
-/* CARDS */
+/* CARDURI */
 .card {
   background: rgba(13,11,26,0.85); border: 1px solid var(--border);
   border-radius: 4px; padding: 2rem; backdrop-filter: blur(20px);
@@ -207,7 +207,7 @@ body {
   color: var(--lavender); text-transform: uppercase; margin-bottom: 0.65rem; display: block;
 }
 
-/* DREAM TEXTAREA */
+/* TEXTAREA VISE */
 textarea.dream-input {
   width: 100%; background: rgba(255,255,255,0.025); border: 1px solid var(--border);
   border-radius: 2px; color: var(--text); font-family: 'EB Garamond', serif;
@@ -217,7 +217,7 @@ textarea.dream-input {
 textarea.dream-input:focus { border-color: rgba(124,92,191,0.45); box-shadow: 0 0 18px rgba(124,92,191,0.08); }
 textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: italic; }
 
-/* LENSES */
+/* LENTILE */
 .lens-section { margin-top: 1.5rem; }
 .lens-grid {
   display: grid; grid-template-columns: repeat(4,1fr); gap: 0.6rem; margin-top: 0.65rem;
@@ -238,7 +238,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
   color: var(--gold-bright); box-shadow: 0 0 18px rgba(201,169,110,0.07);
 }
 
-/* ACTIONS */
+/* ACTIUNI */
 .action-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
 .btn-interpret {
   flex: 1; background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -263,7 +263,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
 }
 .btn-secondary:hover { border-color: var(--border-hover); color: var(--text-mid); }
 
-/* LOADING */
+/* INCARCARE */
 .loading-bar { display: none; text-align: center; padding: 1.5rem 0; }
 .loading-bar.active { display: block; }
 .orb {
@@ -283,7 +283,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
 }
 @keyframes fade-cycle { 0%,100%{opacity:.4} 50%{opacity:1} }
 
-/* ERROR */
+/* EROARE */
 .error-banner {
   display: none; margin-top: 1rem; padding: 0.85rem 1rem;
   background: rgba(200,80,80,0.08); border: 1px solid rgba(200,80,80,0.22);
@@ -291,7 +291,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
 }
 .error-banner.active { display: block; }
 
-/* RESULT */
+/* REZULTAT */
 @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
 .result-card { display: none; animation: fadeUp 0.7s ease both; }
 .result-card.active { display: block; }
@@ -358,7 +358,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
 .cal-day.today { color: var(--lavender); border-color: rgba(184,169,224,0.28); }
 .cal-day.selected { background: rgba(201,169,110,0.1); border-color: var(--gold-dim); color: var(--gold-bright); }
 
-/* DETAIL PANEL */
+/* PANOU DETALII */
 .dream-detail { position: sticky; top: 80px; }
 .dream-detail-empty { text-align: center; padding: 3rem 1.5rem; font-style: italic; color: var(--text-dim); font-size: 0.95rem; }
 .dream-detail-empty .detail-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.35; }
@@ -373,7 +373,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
   border: 1px solid rgba(124,92,191,0.2); border-radius: 2px; padding: 0.15rem 0.5rem;
 }
 
-/* JOURNAL */
+/* JURNAL */
 .journal-list { display: flex; flex-direction: column; gap: 1rem; }
 .journal-entry {
   background: rgba(13,11,26,0.8); border: 1px solid var(--border); border-radius: 4px;
@@ -404,7 +404,7 @@ textarea.dream-input::placeholder { color: rgba(221,216,240,0.18); font-style: i
 .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); font-style: italic; }
 .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3; }
 
-/* SCROLLBAR */
+/* BARA DERULARE */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(124,92,191,0.3); border-radius: 10px; }
