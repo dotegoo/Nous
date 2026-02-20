@@ -1,5 +1,5 @@
 // ─── CONFIGURATIE ──────────────────────────────────────────────────────────
-const API_BASE = 'https://nous-0u15.onrender.com/api/;
+const API_BASE = 'https://nous-0u15.onrender.com/api';
 
 // ─── TRADUCERI ─────────────────────────────────────────────────────────
 const TRANSLATIONS = {
