@@ -10,6 +10,7 @@ const authRoutes  = require('./routes/auth');
 const dreamRoutes = require('./routes/dreams');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ─── MIDDLEWARE DE SECURITATE ─────────────────────────────────────────────
 app.use(helmet({
@@ -42,14 +43,14 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // ─── LIMITARE RATA ───────────────────────────────────────────────────────
 // Limitator general pentru toate rutele API
-const apiLimiter = rateLimit({
+/*const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please wait a moment before trying again.' }
 });
-
+*/
 // Limitator mai strict pentru endpoint-urile de autentificare
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
