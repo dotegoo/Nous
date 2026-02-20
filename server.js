@@ -61,17 +61,17 @@ const authLimiter = rateLimit({
 });
 
 // Limitator pentru interpretarea viselor (apeleaza API-ul Anthropic — protejeaza-l)
-const interpretLimiter = rateLimit({
+/*const interpretLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Hourly interpretation limit reached. The oracle must rest.' }
 });
-
+*/
 //app.use('/api/', apiLimiter);
 app.use('/api/auth/', authLimiter);
-app.use('/api/dreams/interpret', interpretLimiter);
+//app.use('/api/dreams/interpret', interpretLimiter);
 
 // ─── BAZA DE DATE ─────────────────────────────────────────────────────────
 const connectDB = async () => {
