@@ -69,7 +69,7 @@ const interpretLimiter = rateLimit({
   message: { error: 'Hourly interpretation limit reached. The oracle must rest.' }
 });
 
-app.use('/api/', apiLimiter);
+//app.use('/api/', apiLimiter);
 app.use('/api/auth/', authLimiter);
 app.use('/api/dreams/interpret', interpretLimiter);
 
