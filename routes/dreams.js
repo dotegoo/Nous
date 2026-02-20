@@ -5,7 +5,7 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const gemini = genAI.getGenerativeModel({ model: 'gemini-lite' });
+const gemini = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 // All dream routes require authentication
 router.use(protect);
