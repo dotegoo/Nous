@@ -1,11 +1,10 @@
-const express  = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const Dream     = require('../models/Dream');
+const express = require('express');
+const Groq    = require('groq-sdk');
+const Dream   = require('../models/Dream');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const gemini = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+const groq   = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // All dream routes require authentication
 router.use(protect);
@@ -31,7 +30,6 @@ router.get('/', async (req, res, next) => {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const skip  = (page - 1) * limit;
 
-    // Optional lens filter
     const filter = { user: req.user._id };
     if (req.query.lens && LENS_KEYS.includes(req.query.lens)) {
       filter.lens = req.query.lens;
@@ -62,14 +60,13 @@ router.get('/', async (req, res, next) => {
 
 // ─── GET /api/dreams/calendar ─────────────────────────────────────────────
 // Returns dreams grouped by date — used to populate the calendar view
-// Query params: year, month (e.g. ?year=2025&month=11)
 router.get('/calendar', async (req, res, next) => {
   try {
     const year  = parseInt(req.query.year)  || new Date().getFullYear();
     const month = parseInt(req.query.month) || new Date().getMonth() + 1;
 
-    const start = new Date(year, month - 1, 1);           // 1st of the month
-    const end   = new Date(year, month, 0, 23, 59, 59);   // last day of the month
+    const start = new Date(year, month - 1, 1);
+    const end   = new Date(year, month, 0, 23, 59, 59);
 
     const dreams = await Dream.find({
       user:      req.user._id,
@@ -78,7 +75,6 @@ router.get('/calendar', async (req, res, next) => {
       .sort({ createdAt: 1 })
       .select('createdAt lens symbols dream interpretation');
 
-    // Group by YYYY-MM-DD date string
     const byDate = {};
     dreams.forEach((d) => {
       const key = d.createdAt.toISOString().slice(0, 10);
@@ -107,10 +103,10 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // ─── POST /api/dreams/interpret ───────────────────────────────────────────
-// Send a dream to Anthropic, get interpretation, save and return the result
+// Send a dream to Groq, get interpretation, save and return the result
 router.post('/interpret', async (req, res, next) => {
   try {
-    const { dream, lens = 'jungian' } = req.body;
+    const { dream, lens = 'jungian' } = req.body || {};
 
     if (!dream || typeof dream !== 'string') {
       return res.status(400).json({ error: 'Dream content is required.' });
@@ -122,15 +118,26 @@ router.post('/interpret', async (req, res, next) => {
       return res.status(400).json({ error: `Lens must be one of: ${LENS_KEYS.join(', ')}.` });
     }
 
-    // Call Gemini
-    const prompt =
-      LENS_PROMPTS[lens] +
-      '\n\nRespond ONLY with a valid JSON object (no markdown, no preamble):\n' +
-      '{\n  "interpretation": "2-4 paragraphs separated by \\n\\n, addressing the dreamer as you",\n  "symbols": ["3-6 short symbol labels"]\n}' +
-      `\n\nInterpret this dream: ${dream.trim()}`;
+    // Call Groq
+    const completion = await groq.chat.completions.create({
+      model:       'llama-3.3-70b-versatile',
+      temperature: 0.8,
+      max_tokens:  1024,
+      messages: [
+        {
+          role:    'system',
+          content: LENS_PROMPTS[lens] +
+            '\n\nRespond ONLY with a valid JSON object (no markdown, no preamble, no extra text):\n' +
+            '{\n  "interpretation": "2-4 paragraphs separated by \\n\\n, addressing the dreamer as you",\n  "symbols": ["3-6 short symbol labels"]\n}',
+        },
+        {
+          role:    'user',
+          content: `Interpret this dream: ${dream.trim()}`,
+        },
+      ],
+    });
 
-    const result = await gemini.generateContent(prompt);
-    const raw    = result.response.text();
+    const raw = completion.choices?.[0]?.message?.content || '';
 
     let parsed;
     try {
@@ -158,14 +165,13 @@ router.post('/interpret', async (req, res, next) => {
     });
 
   } catch (err) {
-    // Gemini API errors
-    if (err?.status === 400) return res.status(400).json({ error: 'Invalid request to the oracle.' });
+    if (err?.status === 401) return res.status(502).json({ error: 'Groq API key is invalid or missing.' });
     if (err?.status === 429) return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
     next(err);
   }
 });
 
-// ─── PATCH /api/dreams/:id/notes ─────────────────────────────────────────
+// ─── PATCH /api/dreams/:id/notes ──────────────────────────────────────────
 // Add or update personal notes on a saved dream
 router.patch('/:id/notes', async (req, res, next) => {
   try {
