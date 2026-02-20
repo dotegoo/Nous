@@ -134,7 +134,7 @@ router.post('/interpret', interpretLimiter, async (req, res, next) => {
     // Apeleaza Anthropic
     const message = await anthropic.messages.create({
       model:      'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system:     LENS_PROMPTS[lens] +
         '\n\nRespond ONLY with a valid JSON object (no markdown, no preamble):\n' +
         '{\n  "interpretation": "2-4 paragraphs separated by \\n\\n, addressing the dreamer as you",\n  "symbols": ["3-6 short symbol labels"]\n}',
