@@ -43,14 +43,14 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // ─── LIMITARE RATA ───────────────────────────────────────────────────────
 // Limitator general pentru toate rutele API
-/*const apiLimiter = rateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please wait a moment before trying again.' }
 });
-*/
+
 // Limitator mai strict pentru endpoint-urile de autentificare
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -61,17 +61,17 @@ const authLimiter = rateLimit({
 });
 
 // Limitator pentru interpretarea viselor (apeleaza API-ul Anthropic — protejeaza-l)
-/*const interpretLimiter = rateLimit({
+const interpretLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Hourly interpretation limit reached. The oracle must rest.' }
 });
-*/
-//app.use('/api/', apiLimiter);
+
+app.use('/api/', apiLimiter);
 app.use('/api/auth/', authLimiter);
-//app.use('/api/dreams/interpret', interpretLimiter);
+app.use('/api/dreams/interpret', interpretLimiter);
 
 // ─── BAZA DE DATE ─────────────────────────────────────────────────────────
 const connectDB = async () => {
